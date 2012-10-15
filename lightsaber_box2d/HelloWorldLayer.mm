@@ -27,6 +27,8 @@ enum {
 // HelloWorldLayer implementation
 @implementation HelloWorldLayer
 
+@synthesize world;
+
 +(CCScene *) scene
 {
 	// 'scene' is an autorelease object.
@@ -51,26 +53,26 @@ enum {
 		
 		// enable touches
 		self.isTouchEnabled = YES;
-		
-		// enable accelerometer
-		self.isAccelerometerEnabled = YES;
-		
-		CGSize screenSize = [CCDirector sharedDirector].winSize;
-		CCLOG(@"Screen width %0.2f screen height %0.2f",screenSize.width,screenSize.height);
-		
+//		
+//		// enable accelerometer
+//		self.isAccelerometerEnabled = YES;
+//		
+//		CGSize screenSize = [CCDirector sharedDirector].winSize;
+//		CCLOG(@"Screen width %0.2f screen height %0.2f",screenSize.width,screenSize.height);
+//		
 		// Define the gravity vector.
 		b2Vec2 gravity;
-		gravity.Set(0.0f, -10.0f);
+		gravity.Set(0.0f, 0.0f);
 		
 		// Do we want to let bodies sleep?
 		// This will speed up the physics simulation
-		bool doSleep = true;
+		bool doSleep = false;
 		
 		// Construct a world object, which will hold and simulate the rigid bodies.
 		world = new b2World(gravity, doSleep);
-		
-		world->SetContinuousPhysics(true);
-		
+//		
+//		world->SetContinuousPhysics(true);
+//		
 		// Debug Draw functions
 		m_debugDraw = new GLESDebugDraw( PTM_RATIO );
 		world->SetDebugDraw(m_debugDraw);
@@ -82,50 +84,71 @@ enum {
 //		flags += b2DebugDraw::e_pairBit;
 //		flags += b2DebugDraw::e_centerOfMassBit;
 		m_debugDraw->SetFlags(flags);		
-		
-		
-		// Define the ground body.
-		b2BodyDef groundBodyDef;
-		groundBodyDef.position.Set(0, 0); // bottom-left corner
-		
-		// Call the body factory which allocates memory for the ground body
-		// from a pool and creates the ground box shape (also from a pool).
-		// The body is also added to the world.
-		b2Body* groundBody = world->CreateBody(&groundBodyDef);
-		
-		// Define the ground box shape.
-		b2PolygonShape groundBox;		
-		
-		// bottom
-		groundBox.SetAsEdge(b2Vec2(0,0), b2Vec2(screenSize.width/PTM_RATIO,0));
-		groundBody->CreateFixture(&groundBox,0);
-		
-		// top
-		groundBox.SetAsEdge(b2Vec2(0,screenSize.height/PTM_RATIO), b2Vec2(screenSize.width/PTM_RATIO,screenSize.height/PTM_RATIO));
-		groundBody->CreateFixture(&groundBox,0);
-		
-		// left
-		groundBox.SetAsEdge(b2Vec2(0,screenSize.height/PTM_RATIO), b2Vec2(0,0));
-		groundBody->CreateFixture(&groundBox,0);
-		
-		// right
-		groundBox.SetAsEdge(b2Vec2(screenSize.width/PTM_RATIO,screenSize.height/PTM_RATIO), b2Vec2(screenSize.width/PTM_RATIO,0));
-		groundBody->CreateFixture(&groundBox,0);
-		
-		
-		//Set up sprite
-		
-		CCSpriteBatchNode *batch = [CCSpriteBatchNode batchNodeWithFile:@"blocks.png" capacity:150];
-		[self addChild:batch z:0 tag:kTagBatchNode];
-		
-		[self addNewSpriteWithCoords:ccp(screenSize.width/2, screenSize.height/2)];
-		
-		CCLabelTTF *label = [CCLabelTTF labelWithString:@"Tap screen" fontName:@"Marker Felt" fontSize:32];
-		[self addChild:label z:0];
-		[label setColor:ccc3(0,0,255)];
-		label.position = ccp( screenSize.width/2, screenSize.height-50);
-		
+//		
+//		
+//		// Define the ground body.
+//		b2BodyDef groundBodyDef;
+//		groundBodyDef.position.Set(0, 0); // bottom-left corner
+//		
+//		// Call the body factory which allocates memory for the ground body
+//		// from a pool and creates the ground box shape (also from a pool).
+//		// The body is also added to the world.
+//		b2Body* groundBody = world->CreateBody(&groundBodyDef);
+//		
+//		// Define the ground box shape.
+//		b2PolygonShape groundBox;		
+//		
+//		// bottom
+//		groundBox.SetAsEdge(b2Vec2(0,0), b2Vec2(screenSize.width/PTM_RATIO,0));
+//		groundBody->CreateFixture(&groundBox,0);
+//		
+//		// top
+//		groundBox.SetAsEdge(b2Vec2(0,screenSize.height/PTM_RATIO), b2Vec2(screenSize.width/PTM_RATIO,screenSize.height/PTM_RATIO));
+//		groundBody->CreateFixture(&groundBox,0);
+//		
+//		// left
+//		groundBox.SetAsEdge(b2Vec2(0,screenSize.height/PTM_RATIO), b2Vec2(0,0));
+//		groundBody->CreateFixture(&groundBox,0);
+//		
+//		// right
+//		groundBox.SetAsEdge(b2Vec2(screenSize.width/PTM_RATIO,screenSize.height/PTM_RATIO), b2Vec2(screenSize.width/PTM_RATIO,0));
+//		groundBody->CreateFixture(&groundBox,0);
+//		
+//		
+//		//Set up sprite
+//		
+//		CCSpriteBatchNode *batch = [CCSpriteBatchNode batchNodeWithFile:@"blocks.png" capacity:150];
+//		[self addChild:batch z:0 tag:kTagBatchNode];
+//		
+//		[self addNewSpriteWithCoords:ccp(screenSize.width/2, screenSize.height/2)];
+//		
+//		CCLabelTTF *label = [CCLabelTTF labelWithString:@"Tap screen" fontName:@"Marker Felt" fontSize:32];
+//		[self addChild:label z:0];
+//		[label setColor:ccc3(0,0,255)];
+//		label.position = ccp( screenSize.width/2, screenSize.height-50);
+//		
 		[self schedule: @selector(tick:)];
+        
+        // Init lightsaber      
+        lightsaber = [[SWLightsaber alloc] initWithLayer:self];
+        [self addBoxBodyForSprite:lightsaber.sprite];
+        
+        // Init bullet pool
+        bulletPool = [[NSMutableArray alloc] init];
+        
+        // Init probes
+        probes = [[NSMutableArray alloc] init];
+        for (int i = 0; i < MAX_PROBES; i++)
+        {
+            SWProbe* probe = [[[SWProbe alloc] init] autorelease];
+            [probe init:self WithLightsaber:lightsaber WithBulletPool:bulletPool];       
+            [self addBoxBodyForSprite:probe.sprite];
+            [probes addObject:probe];
+        }        
+        
+        // Schedule updates
+        [self scheduleUpdate];
+        [self schedule:@selector(shootBullet) interval:3];
 	}
 	return self;
 }
@@ -147,41 +170,41 @@ enum {
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 }
-
--(void) addNewSpriteWithCoords:(CGPoint)p
-{
-	CCLOG(@"Add sprite %0.2f x %02.f",p.x,p.y);
-	CCSpriteBatchNode *batch = (CCSpriteBatchNode*) [self getChildByTag:kTagBatchNode];
-	
-	//We have a 64x64 sprite sheet with 4 different 32x32 images.  The following code is
-	//just randomly picking one of the images
-	int idx = (CCRANDOM_0_1() > .5 ? 0:1);
-	int idy = (CCRANDOM_0_1() > .5 ? 0:1);
-	CCSprite *sprite = [CCSprite spriteWithBatchNode:batch rect:CGRectMake(32 * idx,32 * idy,32,32)];
-	[batch addChild:sprite];
-	
-	sprite.position = ccp( p.x, p.y);
-	
-	// Define the dynamic body.
-	//Set up a 1m squared box in the physics world
-	b2BodyDef bodyDef;
-	bodyDef.type = b2_dynamicBody;
-
-	bodyDef.position.Set(p.x/PTM_RATIO, p.y/PTM_RATIO);
-	bodyDef.userData = sprite;
-	b2Body *body = world->CreateBody(&bodyDef);
-	
-	// Define another box shape for our dynamic body.
-	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(.5f, .5f);//These are mid points for our 1m box
-	
-	// Define the dynamic body fixture.
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &dynamicBox;	
-	fixtureDef.density = 1.0f;
-	fixtureDef.friction = 0.3f;
-	body->CreateFixture(&fixtureDef);
-}
+//
+//-(void) addNewSpriteWithCoords:(CGPoint)p
+//{
+//	CCLOG(@"Add sprite %0.2f x %02.f",p.x,p.y);
+//	CCSpriteBatchNode *batch = (CCSpriteBatchNode*) [self getChildByTag:kTagBatchNode];
+//	
+//	//We have a 64x64 sprite sheet with 4 different 32x32 images.  The following code is
+//	//just randomly picking one of the images
+//	int idx = (CCRANDOM_0_1() > .5 ? 0:1);
+//	int idy = (CCRANDOM_0_1() > .5 ? 0:1);
+//	CCSprite *sprite = [CCSprite spriteWithBatchNode:batch rect:CGRectMake(32 * idx,32 * idy,32,32)];
+//	[batch addChild:sprite];
+//	
+//	sprite.position = ccp( p.x, p.y);
+//	
+//	// Define the dynamic body.
+//	//Set up a 1m squared box in the physics world
+//	b2BodyDef bodyDef;
+//	bodyDef.type = b2_dynamicBody;
+//
+//	bodyDef.position.Set(p.x/PTM_RATIO, p.y/PTM_RATIO);
+//	bodyDef.userData = sprite;
+//	b2Body *body = world->CreateBody(&bodyDef);
+//	
+//	// Define another box shape for our dynamic body.
+//	b2PolygonShape dynamicBox;
+//	dynamicBox.SetAsBox(.5f, .5f);//These are mid points for our 1m box
+//	
+//	// Define the dynamic body fixture.
+//	b2FixtureDef fixtureDef;
+//	fixtureDef.shape = &dynamicBox;	
+//	fixtureDef.density = 1.0f;
+//	fixtureDef.friction = 0.3f;
+//	body->CreateFixture(&fixtureDef);
+//}
 
 
 
@@ -204,44 +227,145 @@ enum {
 	for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
 	{
 		if (b->GetUserData() != NULL) {
-			//Synchronize the AtlasSprites position and rotation with the corresponding body
-			CCSprite *myActor = (CCSprite*)b->GetUserData();
-			myActor.position = CGPointMake( b->GetPosition().x * PTM_RATIO, b->GetPosition().y * PTM_RATIO);
-			myActor.rotation = -1 * CC_RADIANS_TO_DEGREES(b->GetAngle());
+			CCSprite *sprite = (CCSprite *)b->GetUserData();
+            
+            b2Vec2 b2Position = b2Vec2(sprite.position.x/PTM_RATIO,
+                                       sprite.position.y/PTM_RATIO);
+            float32 b2Angle = -1 * CC_DEGREES_TO_RADIANS(sprite.rotation);
+            
+            b->SetTransform(b2Position, b2Angle);
 		}	
 	}
 }
 
-- (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+//- (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//	//Add a new body/atlas sprite at the touched location
+//	for( UITouch *touch in touches ) {
+//		CGPoint location = [touch locationInView: [touch view]];
+//		
+//		location = [[CCDirector sharedDirector] convertToGL: location];
+//		
+//		[self addNewSpriteWithCoords: location];
+//	}
+//}
+//
+//- (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
+//{	
+//	static float prevX=0, prevY=0;
+//	
+//	//#define kFilterFactor 0.05f
+//#define kFilterFactor 1.0f	// don't use filter. the code is here just as an example
+//	
+//	float accelX = (float) acceleration.x * kFilterFactor + (1- kFilterFactor)*prevX;
+//	float accelY = (float) acceleration.y * kFilterFactor + (1- kFilterFactor)*prevY;
+//	
+//	prevX = accelX;
+//	prevY = accelY;
+//	
+//	// accelerometer values are in "Portrait" mode. Change them to Landscape left
+//	// multiply the gravity by 10
+//	b2Vec2 gravity( -accelY * 10, accelX * 10);
+//	
+//	world->SetGravity( gravity );
+//}
+
+-(void) registerWithTouchDispatcher
 {
-	//Add a new body/atlas sprite at the touched location
-	for( UITouch *touch in touches ) {
-		CGPoint location = [touch locationInView: [touch view]];
-		
-		location = [[CCDirector sharedDirector] convertToGL: location];
-		
-		[self addNewSpriteWithCoords: location];
-	}
+	[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
 }
 
-- (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
-{	
-	static float prevX=0, prevY=0;
-	
-	//#define kFilterFactor 0.05f
-#define kFilterFactor 1.0f	// don't use filter. the code is here just as an example
-	
-	float accelX = (float) acceleration.x * kFilterFactor + (1- kFilterFactor)*prevX;
-	float accelY = (float) acceleration.y * kFilterFactor + (1- kFilterFactor)*prevY;
-	
-	prevX = accelX;
-	prevY = accelY;
-	
-	// accelerometer values are in "Portrait" mode. Change them to Landscape left
-	// multiply the gravity by 10
-	b2Vec2 gravity( -accelY * 10, accelX * 10);
-	
-	world->SetGravity( gravity );
+- (BOOL)ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event {
+    return YES;
+}
+
+- (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event {
+    
+    // Move lightsaber to touch point
+	CGPoint location = [self convertTouchToNodeSpace: touch];    
+    [lightsaber moveLightsaber:location];
+}
+
+- (void) update:(ccTime)dt {    
+    
+    [lightsaber update];
+    
+    // Call probes' updates
+    for (int i = 0; i < probes.count; i++)
+    {
+        [[probes objectAtIndex:i] update:dt];
+    }
+    
+    // Update bullets
+    for (int i = 0; i < bulletPool.count; i++)
+    {
+        SWBullet* bullet = [bulletPool objectAtIndex:i];
+        if (bullet.isOut)
+        {
+            [bulletPool removeObject:bullet];
+            [self spriteDone:bullet.sprite];
+        }
+        else
+        {           
+            [[bulletPool objectAtIndex:i] update:dt];
+        }
+    }    
+    
+    b2Body* b = (b2Body*)lightsaber.sprite.userData;
+    CCLOG(@"%f,%f,%f,%f",lightsaber.sprite.position.x,lightsaber.sprite.position.y,b->GetPosition().x*PTM_RATIO,b->GetPosition().y*PTM_RATIO);
+//    CCLOG(@"%d,%d,%d",self.children.count,bulletPool.count,world->GetBodyCount());
+}
+
+-(void) shootBullet
+{
+    // Tell probes to shoot bullet
+    for (int i = 0; i < probes.count; i++)
+    {
+        [[probes objectAtIndex:i] probeShootBullet];
+    }
+}
+
+- (void)addBoxBodyForSprite:(CCSprite *)sprite {
+    
+    b2BodyDef spriteBodyDef;
+    spriteBodyDef.type = b2_dynamicBody;
+    spriteBodyDef.position.Set(sprite.position.x/PTM_RATIO, 
+                               sprite.position.y/PTM_RATIO);
+    spriteBodyDef.userData = sprite;
+    b2Body *spriteBody = world->CreateBody(&spriteBodyDef);
+    
+    b2PolygonShape spriteShape;
+    spriteShape.SetAsBox(sprite.contentSize.width/PTM_RATIO/2,
+                         sprite.contentSize.height/PTM_RATIO/2);
+    b2FixtureDef spriteShapeDef;
+    spriteShapeDef.shape = &spriteShape;
+    spriteShapeDef.density = 10.0;
+    spriteShapeDef.isSensor = true;
+    spriteBody->CreateFixture(&spriteShapeDef);
+    
+    sprite.userData = spriteBody;
+}
+
+- (void)spriteDone:(id)sender {
+    
+    CCSprite *sprite = (CCSprite *)sender;
+    
+    b2Body *spriteBody = NULL;
+    for(b2Body *b = world->GetBodyList(); b; b=b->GetNext()) {
+        if (b->GetUserData() != NULL) {
+            CCSprite *curSprite = (CCSprite *)b->GetUserData();
+            if (sprite == curSprite) {
+                spriteBody = b;
+                break;
+            }
+        }
+    }
+    if (spriteBody != NULL) {
+        world->DestroyBody(spriteBody);
+    }    
+    
+    [self removeChild:sprite cleanup:YES];
+    
 }
 
 // on "dealloc" you need to release all your retained objects
@@ -252,6 +376,16 @@ enum {
 	world = NULL;
 	
 	delete m_debugDraw;
+    
+    [self spriteDone:lightsaber.sprite];
+    for (int i = 0; i < probes.count; i++)
+    {
+        [self spriteDone:[probes objectAtIndex:i]];
+    }
+    for (int i = 0; i < bulletPool.count; i++)
+    {
+        [self spriteDone:[bulletPool objectAtIndex:i]];
+    }    
 
 	// don't forget to call "super dealloc"
 	[super dealloc];

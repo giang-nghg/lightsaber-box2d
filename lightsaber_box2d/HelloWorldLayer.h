@@ -11,17 +11,34 @@
 #import "cocos2d.h"
 #import "Box2D.h"
 #import "GLES-Render.h"
+#import "SWLightsaber.h"
+#import "SWProbe.h"
+
+#define MAX_PROBES 3
 
 // HelloWorldLayer
 @interface HelloWorldLayer : CCLayer
 {
 	b2World* world;
 	GLESDebugDraw *m_debugDraw;
+    
+    // Lighsaber
+    SWLightsaber* lightsaber;
+    
+    // Array of probes
+    NSMutableArray* probes;
+    
+    // Bullet pool
+    NSMutableArray* bulletPool;
 }
+
+@property(assign) b2World* world;
 
 // returns a CCScene that contains the HelloWorldLayer as the only child
 +(CCScene *) scene;
 // adds a new sprite at a given coordinate
--(void) addNewSpriteWithCoords:(CGPoint)p;
+//-(void) addNewSpriteWithCoords:(CGPoint)p;
+- (void)addBoxBodyForSprite:(CCSprite *)sprite;
+- (void)spriteDone:(id)sender;
 
 @end
