@@ -11,16 +11,18 @@
 #import "cocos2d.h"
 #import "Box2D.h"
 #import "GLES-Render.h"
+#import "MyContactListener.h"
 #import "SWLightsaber.h"
 #import "SWProbe.h"
-
-#define MAX_PROBES 3
+#import "SWUtility.h"
 
 // HelloWorldLayer
 @interface HelloWorldLayer : CCLayer
 {
-	b2World* world;
+    b2World* world;
 	GLESDebugDraw *m_debugDraw;
+    
+    MyContactListener *_contactListener;
     
     // Lighsaber
     SWLightsaber* lightsaber;

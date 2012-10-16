@@ -12,7 +12,7 @@
 
 @synthesize sprite, direction;
 
--(id)initWithLayer:(CCLayer*)pLayer
+-(id)initWithLayer:(CCLayer*)pLayer spriteTag:(int)tag
 {
     if (self = [super init])
     {
@@ -20,6 +20,7 @@
         
         sprite = [CCSprite spriteWithFile: @"lightsaber.png"];
         sprite.position = ccp( 50, 100 );
+        sprite.tag = tag;
         [pLayer addChild:sprite];
         
         direction = CGPointMake(0, 1);

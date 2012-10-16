@@ -51,7 +51,7 @@ enum {
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super init])) {
 		
-		// enable touches
+        // enable touches
 		self.isTouchEnabled = YES;
 //		
 //		// enable accelerometer
@@ -129,8 +129,12 @@ enum {
 //		
 		[self schedule: @selector(tick:)];
         
+        // Create contact listener
+        _contactListener = new MyContactListener();
+        world->SetContactListener(_contactListener);
+        
         // Init lightsaber      
-        lightsaber = [[SWLightsaber alloc] initWithLayer:self];
+        lightsaber = [[SWLightsaber alloc] initWithLayer:self spriteTag:TAG_SPRITE_LIGHTSABER];
         [self addBoxBodyForSprite:lightsaber.sprite];
         
         // Init bullet pool
@@ -236,6 +240,26 @@ enum {
             b->SetTransform(b2Position, b2Angle);
 		}	
 	}
+    
+    /* Collision detection */
+    std::vector<MyContact>::iterator pos;
+    for(pos = _contactListener->_contacts.begin(); 
+        pos != _contactListener->_contacts.end(); ++pos) {
+        MyContact contact = *pos;
+        
+        b2Body *bodyA = contact.fixtureA->GetBody();
+        b2Body *bodyB = contact.fixtureB->GetBody();
+        if (bodyA->GetUserData() != NULL && bodyB->GetUserData() != NULL) {
+            CCSprite *spriteA = (CCSprite *) bodyA->GetUserData();
+            CCSprite *spriteB = (CCSprite *) bodyB->GetUserData();
+            
+            if (spriteA.tag == TAG_SPRITE_LIGHTSABER && spriteB.tag == TAG_SPRITE_BULLET) {
+                
+            } else if (spriteA.tag == TAG_SPRITE_BULLET && spriteB.tag == TAG_SPRITE_LIGHTSABER) {
+                
+            } 
+        }        
+    }    
 }
 
 //- (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -311,8 +335,8 @@ enum {
         }
     }    
     
-    b2Body* b = (b2Body*)lightsaber.sprite.userData;
-    CCLOG(@"%f,%f,%f,%f",lightsaber.sprite.position.x,lightsaber.sprite.position.y,b->GetPosition().x*PTM_RATIO,b->GetPosition().y*PTM_RATIO);
+    //b2Body* b = (b2Body*)lightsaber.sprite.userData;
+    //CCLOG(@"%f,%f,%f,%f",lightsaber.sprite.position.x,lightsaber.sprite.position.y,b->GetPosition().x*PTM_RATIO,b->GetPosition().y*PTM_RATIO);
 //    CCLOG(@"%d,%d,%d",self.children.count,bulletPool.count,world->GetBodyCount());
 }
 
@@ -376,6 +400,8 @@ enum {
 	world = NULL;
 	
 	delete m_debugDraw;
+    
+    delete _contactListener;
     
     [self spriteDone:lightsaber.sprite];
     for (int i = 0; i < probes.count; i++)

@@ -12,7 +12,7 @@
 
 @synthesize isOut, sprite;
 
--(void)initAtPosition:(CGPoint)pos WithLayer:(CCLayer*)pLayer WithLightsaber:(SWLightsaber*)pLightsaber WithBulletPool:(NSMutableArray*)pBulletPool
+-(void)initAtPosition:(CGPoint)pos WithLayer:(CCLayer*)pLayer WithLightsaber:(SWLightsaber*)pLightsaber WithBulletPool:(NSMutableArray*)pBulletPool spriteTag:(int)tag
 {
     isOut = false;
     
@@ -27,6 +27,7 @@
     /* Create bullet */
     sprite = [CCSprite spriteWithFile: @"bullet.png"];
     sprite.position = pos;
+    sprite.tag = tag;
     [pLayer addChild:sprite];
     [pBulletPool addObject:self];
         
@@ -48,28 +49,36 @@
         return;
     }
     
-    if (!CGRectIntersectsRect(sprite.boundingBox, lightsaber.sprite.boundingBox) && !isSafeToIntersect)
-    {
-        isSafeToIntersect = true;
-    }
-    
-    // Deflect bullet
-    if (CGRectIntersectsRect(sprite.boundingBox, lightsaber.sprite.boundingBox) && isSafeToIntersect)
-    {
-        isSafeToIntersect = false;
-        
-        [sprite stopActionByTag:TAG_ACTION_MOVE];
-        CGPoint temp = ccpSub(lightsaber.direction, direction);
-        direction = ccpAdd(lightsaber.direction, temp);
-        [self moveAction];       
-    }
+//    if (!CGRectIntersectsRect(sprite.boundingBox, lightsaber.sprite.boundingBox) && !isSafeToIntersect)
+//    {
+//        isSafeToIntersect = true;
+//    }
+//    
+//    // Deflect bullet
+//    if (CGRectIntersectsRect(sprite.boundingBox, lightsaber.sprite.boundingBox) && isSafeToIntersect)
+//    {
+//        isSafeToIntersect = false;
+//        
+//        [sprite stopActionByTag:TAG_ACTION_MOVE];
+//        CGPoint temp = ccpSub(lightsaber.direction, direction);
+//        direction = ccpAdd(lightsaber.direction, temp);
+//        [self moveAction];       
+//    }
+}
+
+-(void)deflectedMove
+{
+    [sprite stopActionByTag:TAG_ACTION_BULLET_MOVE];
+    CGPoint temp = ccpSub(lightsaber.direction, direction);
+    direction = ccpAdd(lightsaber.direction, temp);
+    [self moveAction];
 }
 
 -(void)moveAction
 {
     double time = 1 / speed;
     CCAction* action = [CCRepeatForever actionWithAction:[CCMoveBy actionWithDuration:time position:direction]];
-    [action setTag:TAG_ACTION_MOVE];
+    [action setTag:TAG_ACTION_BULLET_MOVE];
     [sprite runAction:action];
 }
 

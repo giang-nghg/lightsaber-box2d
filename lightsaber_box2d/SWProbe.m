@@ -42,7 +42,7 @@
 -(void) probeShootBullet
 {
     SWBullet* bullet = [[[SWBullet alloc] init] autorelease];
-    [bullet initAtPosition:sprite.position WithLayer:self.layer WithLightsaber:self.lightsaber WithBulletPool:self.bulletPool];
+    [bullet initAtPosition:sprite.position WithLayer:self.layer WithLightsaber:self.lightsaber WithBulletPool:self.bulletPool spriteTag:TAG_SPRITE_BULLET];
 }
 
 @end

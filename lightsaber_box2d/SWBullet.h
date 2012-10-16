@@ -11,8 +11,6 @@
 #import "SWLightsaber.h"
 #import "SWUtility.h"
 
-#define TAG_ACTION_MOVE 1
-
 @interface SWBullet : NSObject
 {
     bool isOut;
@@ -38,7 +36,7 @@
 @property(assign) bool isOut;
 @property(assign) CCSprite* sprite;
 
--(void)initAtPosition:(CGPoint)pos WithLayer:(CCLayer*)pLayer WithLightsaber:(SWLightsaber*)pLightsaber WithBulletPool:(NSMutableArray*)pBulletPool;
+-(void)initAtPosition:(CGPoint)pos WithLayer:(CCLayer*)pLayer WithLightsaber:(SWLightsaber*)pLightsaber WithBulletPool:(NSMutableArray*)pBulletPool spriteTag:(int)tag;
 -(void)moveAction;
 
 @end

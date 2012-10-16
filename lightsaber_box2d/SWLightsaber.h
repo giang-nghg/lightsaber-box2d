@@ -27,7 +27,7 @@
 @property(assign) CCSprite* sprite;
 @property(assign) CGPoint direction;
 
--(id)initWithLayer:(CCLayer*)pLayer;
+-(id)initWithLayer:(CCLayer*)pLayer spriteTag:(int)tag;
 -(void)moveLightsaber:(CGPoint)location;
 -(void)update;
 
