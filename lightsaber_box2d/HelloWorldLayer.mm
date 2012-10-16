@@ -337,7 +337,7 @@ enum {
     
     //b2Body* b = (b2Body*)lightsaber.sprite.userData;
     //CCLOG(@"%f,%f,%f,%f",lightsaber.sprite.position.x,lightsaber.sprite.position.y,b->GetPosition().x*PTM_RATIO,b->GetPosition().y*PTM_RATIO);
-//    CCLOG(@"%d,%d,%d",self.children.count,bulletPool.count,world->GetBodyCount());
+    CCLOG(@"%d,%d,%d",self.children.count,bulletPool.count,world->GetBodyCount());
 }
 
 -(void) shootBullet
@@ -373,21 +373,7 @@ enum {
 - (void)spriteDone:(id)sender {
     
     CCSprite *sprite = (CCSprite *)sender;
-    
-    b2Body *spriteBody = NULL;
-    for(b2Body *b = world->GetBodyList(); b; b=b->GetNext()) {
-        if (b->GetUserData() != NULL) {
-            CCSprite *curSprite = (CCSprite *)b->GetUserData();
-            if (sprite == curSprite) {
-                spriteBody = b;
-                break;
-            }
-        }
-    }
-    if (spriteBody != NULL) {
-        world->DestroyBody(spriteBody);
-    }    
-    
+    world->DestroyBody((b2Body*)sprite.userData);
     [self removeChild:sprite cleanup:YES];
     
 }

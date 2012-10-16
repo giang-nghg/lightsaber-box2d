@@ -59,7 +59,7 @@
 //    {
 //        isSafeToIntersect = false;
 //        
-//        [sprite stopActionByTag:TAG_ACTION_MOVE];
+//        [sprite stopActionByTag:TAG_ACTION_BULLET_MOVE];
 //        CGPoint temp = ccpSub(lightsaber.direction, direction);
 //        direction = ccpAdd(lightsaber.direction, temp);
 //        [self moveAction];       
