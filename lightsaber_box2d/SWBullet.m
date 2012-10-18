@@ -22,15 +22,13 @@
     
     speed = 10000;
     
-    isSafeToIntersect = true;
-    
     /* Create bullet */
     sprite = [CCSprite spriteWithFile: @"bullet.png"];
     sprite.position = pos;
     sprite.tag = tag;
     [pLayer addChild:sprite];
     [pBulletPool addObject:self];
-        
+    
     [layer addBoxBodyForSprite:sprite];
     
     /* Program bullet's movement */
@@ -49,27 +47,19 @@
         return;
     }
     
-//    if (!CGRectIntersectsRect(sprite.boundingBox, lightsaber.sprite.boundingBox) && !isSafeToIntersect)
-//    {
-//        isSafeToIntersect = true;
-//    }
-//    
-//    // Deflect bullet
-//    if (CGRectIntersectsRect(sprite.boundingBox, lightsaber.sprite.boundingBox) && isSafeToIntersect)
-//    {
-//        isSafeToIntersect = false;
-//        
-//        [sprite stopActionByTag:TAG_ACTION_BULLET_MOVE];
-//        CGPoint temp = ccpSub(lightsaber.direction, direction);
-//        direction = ccpAdd(lightsaber.direction, temp);
-//        [self moveAction];       
-//    }
+    // Deflect bullet
+    if (sprite.tag == TAG_SPRITE_BULLET_COLLIDED)
+    {
+        sprite.tag = TAG_SPRITE_BULLET_DEFLECTED;
+        [self deflectedMove];        
+    }
 }
 
 -(void)deflectedMove
 {
     [sprite stopActionByTag:TAG_ACTION_BULLET_MOVE];
     CGPoint temp = ccpSub(lightsaber.direction, direction);
+    temp = [SWUtility normalizeVector:temp];
     direction = ccpAdd(lightsaber.direction, temp);
     [self moveAction];
 }
@@ -80,6 +70,13 @@
     CCAction* action = [CCRepeatForever actionWithAction:[CCMoveBy actionWithDuration:time position:direction]];
     [action setTag:TAG_ACTION_BULLET_MOVE];
     [sprite runAction:action];
+}
+
+-(void)dealloc
+{
+    [layer spriteDone:sprite];
+    
+    [super dealloc];
 }
 
 @end

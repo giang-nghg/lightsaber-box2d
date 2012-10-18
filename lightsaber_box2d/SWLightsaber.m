@@ -53,4 +53,11 @@
     sprite.position = location;
 }
 
+-(void)dealloc
+{
+    [layer spriteDone:sprite];
+    
+    [super dealloc];
+}
+
 @end

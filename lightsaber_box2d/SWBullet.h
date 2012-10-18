@@ -29,8 +29,6 @@
     double speed;
     
     CGPoint direction;
-    
-    bool isSafeToIntersect;   
 }
 
 @property(assign) bool isOut;
@@ -38,5 +36,6 @@
 
 -(void)initAtPosition:(CGPoint)pos WithLayer:(CCLayer*)pLayer WithLightsaber:(SWLightsaber*)pLightsaber WithBulletPool:(NSMutableArray*)pBulletPool spriteTag:(int)tag;
 -(void)moveAction;
+-(void)deflectedMove;
 
 @end

@@ -24,6 +24,9 @@
     
     // Pointer to bullet pool
     NSMutableArray* bulletPool;
+    
+    // Pointer to probe swarm
+    NSMutableArray* swarm;
 }
 
 @property(assign) CCLayer* layer;
@@ -31,7 +34,7 @@
 @property(assign) NSMutableArray* bulletPool;
 @property(assign) CCSprite* sprite;
 
--(id)init:(CCLayer*)pLayer WithLightsaber:(SWLightsaber*)pLightsaber WithBulletPool:(NSMutableArray*)pBulletPool;
+-(id)init:(CCLayer*)pLayer WithLightsaber:(SWLightsaber*)pLightsaber WithBulletPool:(NSMutableArray*)pBulletPool probeSwarm:(NSMutableArray*)pSwarm;
 -(void)probeShootBullet;
 
 @end

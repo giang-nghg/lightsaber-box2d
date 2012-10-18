@@ -145,9 +145,8 @@ enum {
         for (int i = 0; i < MAX_PROBES; i++)
         {
             SWProbe* probe = [[[SWProbe alloc] init] autorelease];
-            [probe init:self WithLightsaber:lightsaber WithBulletPool:bulletPool];       
-            [self addBoxBodyForSprite:probe.sprite];
-            [probes addObject:probe];
+            [probe init:self WithLightsaber:lightsaber WithBulletPool:bulletPool probeSwarm:probes];       
+            [self addBoxBodyForSprite:probe.sprite];        
         }        
         
         // Schedule updates
@@ -254,10 +253,18 @@ enum {
             CCSprite *spriteB = (CCSprite *) bodyB->GetUserData();
             
             if (spriteA.tag == TAG_SPRITE_LIGHTSABER && spriteB.tag == TAG_SPRITE_BULLET) {
-                
+                spriteB.tag = TAG_SPRITE_BULLET_COLLIDED;
             } else if (spriteA.tag == TAG_SPRITE_BULLET && spriteB.tag == TAG_SPRITE_LIGHTSABER) {
-                
+                spriteA.tag = TAG_SPRITE_BULLET_COLLIDED;
             } 
+            else if (spriteA.tag == TAG_SPRITE_PROBE && spriteB.tag == TAG_SPRITE_BULLET_DEFLECTED)
+            {
+                spriteA.tag = TAG_SPRITE_PROBE_HIT;
+            }
+            else if (spriteA.tag == TAG_SPRITE_BULLET_DEFLECTED && spriteB.tag == TAG_SPRITE_PROBE)
+            {
+                spriteB.tag = TAG_SPRITE_PROBE_HIT;
+            }
         }        
     }    
 }
@@ -327,7 +334,6 @@ enum {
         if (bullet.isOut)
         {
             [bulletPool removeObject:bullet];
-            [self spriteDone:bullet.sprite];
         }
         else
         {           
@@ -389,14 +395,14 @@ enum {
     
     delete _contactListener;
     
-    [self spriteDone:lightsaber.sprite];
+    [lightsaber dealloc];
     for (int i = 0; i < probes.count; i++)
     {
-        [self spriteDone:[probes objectAtIndex:i]];
+        [[probes objectAtIndex:i] dealloc];
     }
     for (int i = 0; i < bulletPool.count; i++)
     {
-        [self spriteDone:[bulletPool objectAtIndex:i]];
+        [[bulletPool objectAtIndex:i] dealloc];
     }    
 
 	// don't forget to call "super dealloc"
