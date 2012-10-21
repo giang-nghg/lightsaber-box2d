@@ -39,9 +39,11 @@
 
 -(void)update:(ccTime)dt
 {
-    // Out of field? Bye!
+    // Out of field OR hit? Bye!
     CGSize winSize = [[CCDirector sharedDirector] winSize];
-    if (sprite.position.x >= winSize.width + sprite.contentSize.width/2 || sprite.position.x < -sprite.contentSize.width/2 || sprite.position.y >= winSize.height + sprite.contentSize.height/2 || sprite.position.y < -sprite.contentSize.height/2)
+    if (sprite.position.x >= winSize.width + sprite.contentSize.width/2 || sprite.position.x < -sprite.contentSize.width/2 || sprite.position.y >= winSize.height + sprite.contentSize.height/2 || sprite.position.y < -sprite.contentSize.height/2
+        
+        || sprite.tag == TAG_SPRITE_BULLET_HIT)
     {
         isOut = true;
         return;

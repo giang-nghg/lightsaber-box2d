@@ -75,7 +75,7 @@ enum {
 //		
 		// Debug Draw functions
 		m_debugDraw = new GLESDebugDraw( PTM_RATIO );
-		world->SetDebugDraw(m_debugDraw);
+		//world->SetDebugDraw(m_debugDraw);
 		
 		uint32 flags = 0;
 		flags += b2DebugDraw::e_shapeBit;
@@ -129,6 +129,13 @@ enum {
 //		
 		[self schedule: @selector(tick:)];
         
+        CGSize winSize = [[CCDirector sharedDirector] winSize];
+        
+        // Set background
+        CCSprite* bg = [CCSprite spriteWithFile:@"rect3813.png"];
+        bg.position = ccp(winSize.width/2, winSize.height/2);
+        [self addChild:bg];
+        
         // Create contact listener
         _contactListener = new MyContactListener();
         world->SetContactListener(_contactListener);
@@ -144,9 +151,7 @@ enum {
         probes = [[NSMutableArray alloc] init];
         for (int i = 0; i < MAX_PROBES; i++)
         {
-            SWProbe* probe = [[[SWProbe alloc] init] autorelease];
-            [probe init:self WithLightsaber:lightsaber WithBulletPool:bulletPool probeSwarm:probes];       
-            [self addBoxBodyForSprite:probe.sprite];        
+            [self probeSpawn];        
         }        
         
         // Schedule updates
@@ -260,10 +265,12 @@ enum {
             else if (spriteA.tag == TAG_SPRITE_PROBE && spriteB.tag == TAG_SPRITE_BULLET_DEFLECTED)
             {
                 spriteA.tag = TAG_SPRITE_PROBE_HIT;
+                spriteB.tag = TAG_SPRITE_BULLET_HIT;
             }
             else if (spriteA.tag == TAG_SPRITE_BULLET_DEFLECTED && spriteB.tag == TAG_SPRITE_PROBE)
             {
                 spriteB.tag = TAG_SPRITE_PROBE_HIT;
+                spriteA.tag = TAG_SPRITE_BULLET_HIT;
             }
         }        
     }    
@@ -322,6 +329,13 @@ enum {
     [lightsaber update];
     
     // Call probes' updates
+    if (probes.count < MAX_PROBES)
+    {
+        for (int i = 0; i < MAX_PROBES-probes.count; i++)
+        {
+            [self probeSpawn];
+        }
+    }
     for (int i = 0; i < probes.count; i++)
     {
         [[probes objectAtIndex:i] update:dt];
@@ -365,8 +379,15 @@ enum {
     b2Body *spriteBody = world->CreateBody(&spriteBodyDef);
     
     b2PolygonShape spriteShape;
+    
+    // Make body position correct with anchor point 
+    b2Vec2 c = b2Vec2(-((sprite.contentSize.width * sprite.anchorPoint.x) - sprite.contentSize.width/2) /PTM_RATIO,
+                      -((sprite.contentSize.height * sprite.anchorPoint.y) - sprite.contentSize.height/2) /PTM_RATIO);    
     spriteShape.SetAsBox(sprite.contentSize.width/PTM_RATIO/2,
-                         sprite.contentSize.height/PTM_RATIO/2);
+                         sprite.contentSize.height/PTM_RATIO/2,
+                         c,
+                         0);
+    
     b2FixtureDef spriteShapeDef;
     spriteShapeDef.shape = &spriteShape;
     spriteShapeDef.density = 10.0;
@@ -382,6 +403,13 @@ enum {
     world->DestroyBody((b2Body*)sprite.userData);
     [self removeChild:sprite cleanup:YES];
     
+}
+
+-(void)probeSpawn
+{
+    SWProbe* probe = [[[SWProbe alloc] init] autorelease];
+    [probe init:self WithLightsaber:lightsaber WithBulletPool:bulletPool probeSwarm:probes];       
+    [self addBoxBodyForSprite:probe.sprite];
 }
 
 // on "dealloc" you need to release all your retained objects

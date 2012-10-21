@@ -42,5 +42,6 @@
 //-(void) addNewSpriteWithCoords:(CGPoint)p;
 - (void)addBoxBodyForSprite:(CCSprite *)sprite;
 - (void)spriteDone:(id)sender;
+-(void) probeSpawn;
 
 @end

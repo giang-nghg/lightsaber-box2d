@@ -27,6 +27,9 @@
         sprite.tag = TAG_SPRITE_PROBE;
         [pLayer addChild:sprite];     
         [swarm addObject:self];
+        
+        particle = [ARCH_OPTIMAL_PARTICLE_SYSTEM
+                    particleWithFile:@"newexplo.plist"];
     }
     
     return self;
@@ -44,6 +47,12 @@
     // Probe hit
     if (sprite.tag == TAG_SPRITE_PROBE_HIT)
     {
+        //Particle effects        
+        particle.positionType = kCCPositionTypeFree; 
+        particle.autoRemoveOnFinish = YES;
+        particle.position = self.sprite.position;
+        [layer addChild:particle];
+
         [swarm removeObject:self];
     }
 }

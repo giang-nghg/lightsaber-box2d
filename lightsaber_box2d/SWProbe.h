@@ -27,6 +27,8 @@
     
     // Pointer to probe swarm
     NSMutableArray* swarm;
+    
+    CCParticleSystem* particle;
 }
 
 @property(assign) CCLayer* layer;
