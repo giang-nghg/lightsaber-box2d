@@ -20,7 +20,7 @@
     self->lightsaber = pLightsaber;
     self->bulletPool = pBulletPool;
     
-    speed = 10000;
+    speed = 1000000;
     
     /* Create bullet */
     sprite = [CCSprite spriteWithFile: @"bullet.png"];

@@ -156,7 +156,7 @@ enum {
         
         // Schedule updates
         [self scheduleUpdate];
-        [self schedule:@selector(shootBullet) interval:3];
+        [self schedule:@selector(shootBullet) interval:5];
 	}
 	return self;
 }
